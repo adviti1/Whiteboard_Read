@@ -1,38 +1,68 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useKeycloak } from '@react-keycloak/web';
 
-import './App.css'
-import AppRoutes from './AppRoutes'
-import { ReactKeycloakProvider } from "@react-keycloak/web";
-import keycloak from "./KeycloakProvider";
+import LoginPage from './pages/LoginPage';
+import LobbyPage from './pages/LobbyPage';
+import WhiteboardPage from './pages/WhiteboardPage';
 
-function App() {
-    const { keycloak, initialized } = useKeycloak();
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { keycloak } = useKeycloak();
 
-      if (!initialized) {
-    return <div>Loading...</div>;
+  return keycloak.authenticated ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/login" replace />
+  );
+};
+
+const App: React.FC = () => {
+  const { keycloak, initialized } = useKeycloak();
+
+  console.log("Keycloak initialized:", initialized);
+  console.log("Keycloak authenticated:", keycloak?.authenticated);
+
+  if (!initialized) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="text-gray-600 text-lg">Loading...</span>
+      </div>
+    );
   }
 
   return (
-   <div className="text-center p-4">
-      {keycloak.authenticated ? (
-        <>
-          <h1 className="text-2xl font-bold">Welcome, {keycloak.tokenParsed?.preferred_username}</h1>
-          <button
-            onClick={() => keycloak.logout()}
-            className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-          >
-            Logout
-          </button>
-        </>
-      ) : (
-        <button
-          onClick={() => keycloak.login()}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Login
-        </button>
-      )}
-    </div>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/lobby"
+          element={
+            <PrivateRoute>
+              <LobbyPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/whiteboard/:sessionId"
+          element={
+            <PrivateRoute>
+              <WhiteboardPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            keycloak.authenticated ? (
+              <Navigate to="/lobby" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;
