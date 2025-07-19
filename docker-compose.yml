@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   keycloak-db:
     image: postgres:15
@@ -45,11 +43,11 @@ services:
     networks:
       - app-network
 
-  image_classification:   # ✅ THIS MUST BE UNDER services:
+  ml-service:  # Service name can be anything; it doesn't need to match folder
     build: 
-      context: ./image_classification
+      context: ./image_classification  # Points to your renamed folder
       dockerfile: Dockerfile
-    container_name: image_classification
+    container_name: ml-service
     ports:
       - "8000:8000"
     environment:
