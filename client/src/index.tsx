@@ -12,9 +12,10 @@ const root = ReactDOM.createRoot(
 
 root.render(
  
-    <ReactKeycloakProvider
+   <ReactKeycloakProvider
       authClient={keycloak}
-      initOptions={{ onLoad: 'check-sso' }}
+      initOptions={{ onLoad: 'check-sso', checkLoginIframe: false }}
+      LoadingComponent={<div>Loading authentication…</div>}
     >
       <App />
     </ReactKeycloakProvider>
