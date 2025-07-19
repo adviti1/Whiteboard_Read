@@ -1,34 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
+import AppRoutes from './AppRoutes'
+import { ReactKeycloakProvider } from "@react-keycloak/web";
+import keycloak from "./KeycloakProvider";
 
 function App() {
-  const [count, setCount] = useState(0)
+    const { keycloak, initialized } = useKeycloak();
+
+      if (!initialized) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+   <div className="text-center p-4">
+      {keycloak.authenticated ? (
+        <>
+          <h1 className="text-2xl font-bold">Welcome, {keycloak.tokenParsed?.preferred_username}</h1>
+          <button
+            onClick={() => keycloak.logout()}
+            className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Logout
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={() => keycloak.login()}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Login
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      )}
+    </div>
   )
 }
 
