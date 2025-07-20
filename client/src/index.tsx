@@ -4,7 +4,7 @@ import { ReactKeycloakProvider } from '@react-keycloak/web';
 import keycloak from './keycloak'; // Import from separate file
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
-import App from './App';
+import App from './App'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,12 +12,19 @@ const root = ReactDOM.createRoot(
 
 root.render(
  
-   <ReactKeycloakProvider
-      authClient={keycloak}
-      initOptions={{ onLoad: 'check-sso', checkLoginIframe: false }}
-      LoadingComponent={<div>Loading authentication…</div>}
-    >
-      <App />
-    </ReactKeycloakProvider>
- 
+<ReactKeycloakProvider
+  authClient={keycloak}
+  initOptions={{
+    onLoad: 'check-sso',
+    checkLoginIframe: false,
+    redirectUri: window.location.origin
+  }}
+  LoadingComponent={<div>Loading auth…</div>}
+>
+  <App />
+</ReactKeycloakProvider>
 );
+
+
+
+

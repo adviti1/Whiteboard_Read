@@ -14,18 +14,19 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak-server
+    volumes:
+      - ./WhiteboardApp-realm.json:/opt/keycloak/data/import/realm.json
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin123
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: password123
     ports:
       - "8080:8080"
     depends_on:
       - keycloak-db
-    command: start-dev
+    command:
+      - start-dev
+      - --http-relative-path=/auth
+      - --import-realm
     networks:
       - keycloak-network
 
@@ -43,18 +44,18 @@ services:
     networks:
       - app-network
 
-  ml-service:  # Service name can be anything; it doesn't need to match folder
-    build: 
-      context: ./image_classification  # Points to your renamed folder
+  ml-service:
+    build:
+      context: ./image_classification
       dockerfile: Dockerfile
     container_name: ml-service
+    environment:
+      PYTHONPATH: /app
     ports:
       - "8000:8000"
-    environment:
-      - PYTHONPATH=/app
+    restart: unless-stopped
     networks:
       - app-network
-    restart: unless-stopped
 
 volumes:
   keycloak_db_data:
